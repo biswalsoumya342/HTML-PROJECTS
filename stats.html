@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Stats Generator</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #333;
+      border-radius: 5px;
+      background-color: #1e1e1e;
+      color: #ffffff;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #00b894;
+      color: #ffffff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    button:hover {
+      background-color: #019875;
+    }
+
+    #preview {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #preview img {
+      max-width: 100%;
+      border-radius: 10px;
+    }
+
+    .alert {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #00b894;
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 1rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+      z-index: 1000;
+    }
+
+    .alert.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
+    footer a {
+      color: #00b894;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .export-options {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .export-options button {
+      width: 48%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>GitHub Stats Generator</h1>
+    <div class="form-group">
+      <label for="username">GitHub Username</label>
+      <input type="text" id="username" placeholder="Enter GitHub username">
+    </div>
+
+    <div class="form-group">
+      <label for="theme">Select Theme</label>
+      <select id="theme">
+        <option value="default">Default</option>
+        <option value="dark">Dark</option>
+        <option value="radical">Radical</option>
+        <option value="merko">Merko</option>
+        <option value="gruvbox">Gruvbox</option>
+        <option value="tokyonight">Tokyo Night</option>
+        <option value="onedark">One Dark</option>
+        <option value="cobalt">Cobalt</option>
+        <option value="synthwave">Synthwave</option>
+        <option value="highcontrast">High Contrast</option>
+        <option value="dracula">Dracula</option>
+        <option value="github_light">GitHub Light</option>
+        <option value="github_dark">GitHub Dark</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="border">Show Border</label>
+      <select id="border">
+        <option value="true">Show Border</option>
+        <option value="false">Hide Border</option>
+      </select>
+    </div>
+
+    <button onclick="showResult()">Show Result</button>
+
+    <div id="preview"></div>
+
+    <!-- Export Options -->
+    <div class="export-options">
+      <button onclick="downloadImage()">Download as Image</button>
+      <button onclick="copyLink()">Copy Link</button>
+    </div>
+
+    <div class="alert" id="alertBox">Link copied to clipboard!</div>
+
+    <footer>
+      Made with ❤️ by <a href="https://github.com/biswalsoumya342" target="_blank">Soumya Biswal</a>
+    </footer>
+  </div>
+
+  <script>
+    let statsUrl = '';
+
+    function showResult() {
+      const username = document.getElementById('username').value;
+      const theme = document.getElementById('theme').value;
+      const border = document.getElementById('border').value;
+
+      const supportedThemes = [
+        'default', 'dark', 'radical', 'merko', 'gruvbox',
+        'tokyonight', 'onedark', 'cobalt', 'synthwave',
+        'highcontrast', 'dracula', 'github_light', 'github_dark'
+      ];
+
+      const selectedTheme = supportedThemes.includes(theme) ? theme : 'default';
+
+      if (!username) {
+        alert('Please enter a GitHub username');
+        return;
+      }
+
+      statsUrl = `https://github-readme-stats.vercel.app/api?username=${username}&theme=${selectedTheme}&hide_border=${border === 'false'}`;
+      const preview = document.getElementById('preview');
+      preview.innerHTML = `<img src="${statsUrl}" alt="GitHub Stats">`;
+    }
+
+    function downloadImage() {
+      if (!statsUrl) {
+        alert('Please generate a GitHub stats preview first!');
+        return;
+      }
+
+      const link = document.createElement('a');
+      link.href = statsUrl;
+      link.download = 'github-stats.png';
+      link.click();
+    }
+
+    function copyLink() {
+      if (!statsUrl) {
+        showAlert('Please generate a GitHub stats preview first!');
+        return;
+      }
+
+      navigator.clipboard.writeText(statsUrl)
+        .then(() => {
+          showAlert('Link copied to clipboard!');
+        })
+        .catch(err => {
+          showAlert('Failed to copy link: ' + err);
+        });
+    }
+
+    function showAlert(message) {
+      const alertBox = document.getElementById('alertBox');
+      alertBox.textContent = message;
+      alertBox.classList.add('show');
+      setTimeout(() => {
+        alertBox.classList.remove('show');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
